@@ -8,7 +8,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate          # 'create' pour le premier lancement, puis 'update'
+      ddl-auto: update          # 'create' pour le premier lancement, puis 'update'
     show-sql: true
     properties:
       hibernate:
