@@ -13,7 +13,6 @@ import java.time.LocalTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

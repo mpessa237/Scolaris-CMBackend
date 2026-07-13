@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Grade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

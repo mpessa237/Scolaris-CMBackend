@@ -24,7 +24,11 @@ application:
   jwt:
     secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970  # cl? HS256 en hex (? changer en prod!)
     access-token-expiration: 900000          # 15 minutes en ms
-    refresh-token-expiration: 604800000      # 7 jours en ms
+    refresh-token-expiration: 604800000  # 7 jours en ms
+
+  admin:
+    email: ${ADMIN_EMAIL:hervempessa7@gmail.com}
+    password: ${ADMIN_PASSWORD:herve1310}
 
 logging:
   level:

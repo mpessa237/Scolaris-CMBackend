@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Builder
 @Table(name = "users")
 public class User implements UserDetails {
 
@@ -40,7 +39,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    @Builder.Default
     private boolean active = true;
 
     // Notes saisies par cet utilisateur (si role = TEACHER)

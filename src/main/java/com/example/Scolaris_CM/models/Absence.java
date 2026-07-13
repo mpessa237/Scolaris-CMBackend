@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Absence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +23,6 @@ public class Absence {
 
     private String reason;
 
-    @Builder.Default
     private boolean justified = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

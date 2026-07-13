@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Sanction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
