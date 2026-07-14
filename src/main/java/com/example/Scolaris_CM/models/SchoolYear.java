@@ -28,7 +28,6 @@ public class SchoolYear {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    //@Builder.Default
     private boolean active = false;
 
     @OneToMany(mappedBy = "schoolYear", cascade = CascadeType.ALL)
