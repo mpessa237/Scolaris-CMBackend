@@ -1,0 +1,35 @@
+name: CI - Backend Scolaris-CM
+
+on:
+  push:
+    branches: [ login ]
+  pull_request:
+    branches: [ login ]
+
+jobs:
+  build:
+    name: Build & Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compiler le projet (sans les tests)
+        run: mvn clean compile
+
+      - name: Packager en jar
+        run: mvn package -DskipTests
+
+      - name: Uploader l'artefact jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: scolaris-cm-backend
+          path: target/*.jar
