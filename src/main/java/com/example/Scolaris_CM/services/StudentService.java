@@ -85,10 +85,25 @@ public class StudentService {
         studentRepo.delete(student);
     }
 
+    // Se base sur le DERNIER matricule existant (pas sur un simple comptage) pour éviter
+    // toute collision après suppression d'un élève en cours d'année.
     private String generateRegistrationNumber() {
         String yearPrefix = String.valueOf(LocalDate.now().getYear());
-        long countThisYear = studentRepo.countByRegistrationNumberStartingWith(yearPrefix);
-        return yearPrefix + "-" + String.format("%04d", countThisYear + 1);
+
+        int nextNumber = studentRepo
+                .findTopByRegistrationNumberStartingWithOrderByRegistrationNumberDesc(yearPrefix)
+                .map(this::extractSequenceNumber)
+                .map(n -> n + 1)
+                .orElse(1);
+
+        return yearPrefix + "-" + String.format("%04d", nextNumber);
+    }
+
+    private int extractSequenceNumber(Student student) {
+        // Format attendu : "2026-0007" -> on extrait "0007"
+        String registrationNumber = student.getRegistrationNumber();
+        String suffix = registrationNumber.substring(registrationNumber.indexOf('-') + 1);
+        return Integer.parseInt(suffix);
     }
 
     private void ensureClassHasCapacity(SchoolClass schoolClass) {

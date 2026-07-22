@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SequenceRepo extends JpaRepository<Sequence, Long> {
-    boolean existsByNumberAndSchoolYearId(int number, Long schoolYearId);
+    boolean existsByNumberAndTermAndSchoolYearId(int number, int term, Long schoolYearId);
 }
