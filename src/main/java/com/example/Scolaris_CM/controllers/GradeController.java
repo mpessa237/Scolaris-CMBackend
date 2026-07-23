@@ -19,10 +19,13 @@ import java.util.List;
 @RequestMapping("/api/grades")
 public class GradeController {
 
+
     private final GradeService gradeService;
 
+    // hasAnyRole('TEACHER', 'ADMIN') : un enseignant saisit ses propres notes,
+    // un admin peut intervenir en cas de correction administrative
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<GradeResponse> create(
             @Validated @RequestBody GradeRequest request,
             @AuthenticationPrincipal User currentUser
@@ -30,21 +33,42 @@ public class GradeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(gradeService.create(request, currentUser));
     }
 
-    @GetMapping("/student/{studentId}")
+    @GetMapping
+    public ResponseEntity<List<GradeResponse>> getAll() {
+        return ResponseEntity.ok(gradeService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GradeResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(gradeService.getById(id));
+    }
+
+    @GetMapping("/by-student/{studentId}")
     public ResponseEntity<List<GradeResponse>> getByStudent(@PathVariable Long studentId) {
         return ResponseEntity.ok(gradeService.getByStudent(studentId));
     }
 
+    @GetMapping("/by-student/{studentId}/by-sequence/{sequenceId}")
+    public ResponseEntity<List<GradeResponse>> getByStudentAndSequence(
+            @PathVariable Long studentId, @PathVariable Long sequenceId
+    ) {
+        return ResponseEntity.ok(gradeService.getByStudentAndSequence(studentId, sequenceId));
+    }
+
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
-    public ResponseEntity<GradeResponse> update(@PathVariable Long id, @Validated @RequestBody GradeRequest request) {
-        return ResponseEntity.ok(gradeService.update(id, request));
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<GradeResponse> update(
+            @PathVariable Long id,
+            @Validated @RequestBody GradeRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(gradeService.update(id, request, currentUser));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        gradeService.delete(id);
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User currentUser) {
+        gradeService.delete(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

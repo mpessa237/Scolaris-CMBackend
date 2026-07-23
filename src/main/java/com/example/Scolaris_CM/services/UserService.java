@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -33,6 +36,13 @@ public class UserService {
         User saved = userRepo.save(user);
 
         return toResponse(saved);
+    }
+
+    public List<UserResponse> findAllUsers(){
+        return userRepo.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     private UserResponse toResponse(User user) {
