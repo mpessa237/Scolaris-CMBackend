@@ -15,18 +15,39 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/sequences")
+@PreAuthorize("hasRole('ADMIN')")
 public class SequenceController {
 
     private final SequenceService sequenceService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SequenceResponse> create(@Validated @RequestBody SequenceRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sequenceService.create(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<SequenceResponse>> getAll() {
+    public ResponseEntity<List<SequenceResponse>> getAll(
+            @RequestParam(required = false) Long schoolYearId
+    ) {
+        if (schoolYearId != null) {
+            return ResponseEntity.ok(sequenceService.getBySchoolYear(schoolYearId));
+        }
         return ResponseEntity.ok(sequenceService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SequenceResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(sequenceService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SequenceResponse> update(@PathVariable Long id, @Validated @RequestBody SequenceRequest request) {
+        return ResponseEntity.ok(sequenceService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        sequenceService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

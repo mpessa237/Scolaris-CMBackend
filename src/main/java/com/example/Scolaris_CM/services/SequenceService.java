@@ -20,44 +20,83 @@ public class SequenceService {
     private final SchoolYearRepo schoolYearRepo;
 
     public SequenceResponse create(SequenceRequest request) {
-        if (request.getNumber() < 1 || request.getNumber() > 6) {
-            throw new IllegalArgumentException("Le numéro de séquence doit être compris entre 1 et 6");
-        }
-        if (request.getTerm() < 1 || request.getTerm() > 3) {
-            throw new IllegalArgumentException("Le trimestre doit être 1, 2 ou 3");
-        }
-        // Validation croisée séquence/trimestre
-        if ((request.getTerm() == 1 && (request.getNumber() < 1 || request.getNumber() > 2)) ||
-                (request.getTerm() == 2 && (request.getNumber() < 3 || request.getNumber() > 4)) ||
-                (request.getTerm() == 3 && (request.getNumber() < 5 || request.getNumber() > 6))) {
+        SchoolYear schoolYear = findSchoolYearById(request.getSchoolYearId());
+
+        validateNumberMatchesTerm(request.getNumber(), request.getTerm());
+
+        if (sequenceRepo.existsByNumberAndSchoolYearId(request.getNumber(), request.getSchoolYearId())) {
             throw new IllegalArgumentException(
-                    "La séquence " + request.getNumber() + " n'est pas valide pour le trimestre " + request.getTerm());
+                    "La séquence " + request.getNumber() + " existe déjà pour cette année scolaire");
         }
 
-        // 2. Vérification de l'année scolaire
-        SchoolYear schoolYear = schoolYearRepo.findById(request.getSchoolYearId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Année scolaire introuvable avec l'id : " + request.getSchoolYearId()));
-
-        // 3. Vérification d'unicité (séquence + trimestre + année)
-        if (sequenceRepo.existsByNumberAndTermAndSchoolYearId(
-                request.getNumber(), request.getTerm(), request.getSchoolYearId())) {
-            throw new IllegalArgumentException(
-                    "La séquence " + request.getNumber() + " existe déjà pour ce trimestre et cette année scolaire");
-        }
-
-        // 4. Création de l'entité
         Sequence sequence = new Sequence();
         sequence.setNumber(request.getNumber());
         sequence.setTerm(request.getTerm());
         sequence.setSchoolYear(schoolYear);
 
-        // 5. Sauvegarde et retour
         return toResponse(sequenceRepo.save(sequence));
     }
 
     public List<SequenceResponse> getAll() {
-        return sequenceRepo.findAll().stream().map(this::toResponse).toList();
+        return sequenceRepo.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<SequenceResponse> getBySchoolYear(Long schoolYearId) {
+        return sequenceRepo.findBySchoolYearId(schoolYearId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public SequenceResponse getById(Long id) {
+        return toResponse(findEntityById(id));
+    }
+
+    public SequenceResponse update(Long id, SequenceRequest request) {
+        Sequence sequence = findEntityById(id);
+        SchoolYear schoolYear = findSchoolYearById(request.getSchoolYearId());
+
+        validateNumberMatchesTerm(request.getNumber(), request.getTerm());
+
+        boolean numberChanged = sequence.getNumber() != request.getNumber();
+        boolean yearChanged = !sequence.getSchoolYear().getId().equals(request.getSchoolYearId());
+        if ((numberChanged || yearChanged)
+                && sequenceRepo.existsByNumberAndSchoolYearId(request.getNumber(), request.getSchoolYearId())) {
+            throw new IllegalArgumentException(
+                    "La séquence " + request.getNumber() + " existe déjà pour cette année scolaire");
+        }
+
+        sequence.setNumber(request.getNumber());
+        sequence.setTerm(request.getTerm());
+        sequence.setSchoolYear(schoolYear);
+
+        return toResponse(sequenceRepo.save(sequence));
+    }
+
+    public void delete(Long id) {
+        Sequence sequence = findEntityById(id);
+        sequenceRepo.delete(sequence);
+    }
+
+    // Règle du système camerounais : séquences 1-2 -> trimestre 1, séquences 3-4 -> trimestre 2, séquences 5-6 -> trimestre 3
+    private void validateNumberMatchesTerm(int number, int term) {
+        int expectedTerm = ((number - 1) / 2) + 1;
+        if (expectedTerm != term) {
+            throw new IllegalArgumentException(
+                    "La séquence " + number + " doit appartenir au trimestre " + expectedTerm
+                            + ", pas au trimestre " + term);
+        }
+    }
+
+    private SchoolYear findSchoolYearById(Long id) {
+        return schoolYearRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Année scolaire introuvable avec l'id : " + id));
+    }
+
+    private Sequence findEntityById(Long id) {
+        return sequenceRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Séquence introuvable avec l'id : " + id));
     }
 
     private SequenceResponse toResponse(Sequence sequence) {
