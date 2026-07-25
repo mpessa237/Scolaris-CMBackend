@@ -2,6 +2,7 @@ package com.example.Scolaris_CM.controllers;
 
 import com.example.Scolaris_CM.dtos.LoginRequest;
 import com.example.Scolaris_CM.dtos.LoginResponse;
+import com.example.Scolaris_CM.dtos.LogoutRequest;
 import com.example.Scolaris_CM.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,13 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Validated @RequestBody LoginRequest loginRequest){
 
         return ResponseEntity.ok(authService.login(loginRequest));
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Validated @RequestBody LogoutRequest request) {
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
     }
 
 }
