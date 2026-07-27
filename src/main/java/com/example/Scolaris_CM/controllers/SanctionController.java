@@ -30,6 +30,16 @@ public class SanctionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(sanctionService.create(request, currentUser));
     }
 
+    @GetMapping
+    public ResponseEntity<List<SanctionResponse>> getAll() {
+        return ResponseEntity.ok(sanctionService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SanctionResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(sanctionService.getById(id));
+    }
+
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<SanctionResponse>> getByStudent(@PathVariable Long studentId) {
         return ResponseEntity.ok(sanctionService.getByStudent(studentId));
@@ -37,14 +47,18 @@ public class SanctionController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
-    public ResponseEntity<SanctionResponse> update(@PathVariable Long id, @Validated @RequestBody SanctionRequest request) {
-        return ResponseEntity.ok(sanctionService.update(id, request));
+    public ResponseEntity<SanctionResponse> update(
+            @PathVariable Long id,
+            @Validated @RequestBody SanctionRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(sanctionService.update(id, request, currentUser));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        sanctionService.delete(id);
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User currentUser) {
+        sanctionService.delete(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

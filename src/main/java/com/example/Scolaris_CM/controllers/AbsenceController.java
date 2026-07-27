@@ -21,6 +21,7 @@ public class AbsenceController {
 
     private final AbsenceService absenceService;
 
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
     public ResponseEntity<AbsenceResponse> create(
@@ -30,6 +31,16 @@ public class AbsenceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(absenceService.create(request, currentUser));
     }
 
+    @GetMapping
+    public ResponseEntity<List<AbsenceResponse>> getAll() {
+        return ResponseEntity.ok(absenceService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AbsenceResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(absenceService.getById(id));
+    }
+
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<AbsenceResponse>> getByStudent(@PathVariable Long studentId) {
         return ResponseEntity.ok(absenceService.getByStudent(studentId));
@@ -37,14 +48,18 @@ public class AbsenceController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
-    public ResponseEntity<AbsenceResponse> update(@PathVariable Long id, @Validated @RequestBody AbsenceRequest request) {
-        return ResponseEntity.ok(absenceService.update(id, request));
+    public ResponseEntity<AbsenceResponse> update(
+            @PathVariable Long id,
+            @Validated @RequestBody AbsenceRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(absenceService.update(id, request, currentUser));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        absenceService.delete(id);
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERVISOR')")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal User currentUser) {
+        absenceService.delete(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

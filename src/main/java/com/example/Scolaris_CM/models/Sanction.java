@@ -20,7 +20,8 @@ public class Sanction {
 
     // Ex: "WARNING", "DETENTION", "SUSPENSION"
     @Column(nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private SanctionType sanctionType ;
 
     private String description;
 

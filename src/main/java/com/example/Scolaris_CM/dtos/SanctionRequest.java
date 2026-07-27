@@ -1,5 +1,6 @@
 package com.example.Scolaris_CM.dtos;
 
+import com.example.Scolaris_CM.models.SanctionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SanctionRequest {
-    private String type;
+    private SanctionType sanctionType ;
     private String description;
     private LocalDate date;
     private Long studentId;
