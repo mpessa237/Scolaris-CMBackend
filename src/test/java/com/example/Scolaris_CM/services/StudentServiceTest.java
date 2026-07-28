@@ -57,7 +57,8 @@ class StudentServiceTest {
     void create_devraitCreerEleve_quandDonneesValides() {
         when(schoolClassRepo.findById(1L)).thenReturn(Optional.of(schoolClass));
         when(studentRepo.findBySchoolClassId(1L)).thenReturn(Collections.emptyList());
-        when(studentRepo.countByRegistrationNumberStartingWith(any())).thenReturn(0L);
+        when(studentRepo.findTopByRegistrationNumberStartingWithOrderByRegistrationNumberDesc(any()))
+                .thenReturn(Optional.empty());
         when(studentRepo.save(any(Student.class))).thenAnswer(invocation -> {
             Student saved = invocation.getArgument(0);
             saved.setId(10L);
