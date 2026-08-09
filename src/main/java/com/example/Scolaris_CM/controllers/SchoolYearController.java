@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/school-Years")
+@RequestMapping("/api/school-y+-ears")
 @PreAuthorize("hasRole('ADMIN')")
 public class SchoolYearController {
 
